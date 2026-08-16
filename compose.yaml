@@ -1,0 +1,29 @@
+name: ops-max
+
+services:
+  aiops:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ops-max:local
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      AI_MODEL_ENABLED: "${AI_MODEL_ENABLED:-false}"
+      AI_MODEL_BASE_URL: "${AI_MODEL_BASE_URL:-https://api.deepseek.com/}"
+      AI_MODEL_API_KEY: "${AI_MODEL_API_KEY:-}"
+      AI_MODEL_NAME: "${AI_MODEL_NAME:-deepseek-v4-flash}"
+      AI_MODEL_REASONING_EFFORT: "${AI_MODEL_REASONING_EFFORT:-medium}"
+      AI_MODEL_STORE_RESPONSES: "${AI_MODEL_STORE_RESPONSES:-false}"
+      AI_MODEL_CONNECT_TIMEOUT: "${AI_MODEL_CONNECT_TIMEOUT:-5s}"
+      AI_MODEL_READ_TIMEOUT: "${AI_MODEL_READ_TIMEOUT:-120s}"
+      AI_MODEL_MAX_INPUT_CHARS: "${AI_MODEL_MAX_INPUT_CHARS:-20000}"
+      AI_LOG_UPLOAD_MAX_BYTES: "${AI_LOG_UPLOAD_MAX_BYTES:-5242880}"
+      JAVA_TOOL_OPTIONS: "${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=75.0}"
+    volumes:
+      - aiops-data:/app/data
+    restart: unless-stopped
+
+volumes:
+  aiops-data:
+

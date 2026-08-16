@@ -1,0 +1,15 @@
+.git
+.gitignore
+.idea
+.vscode
+.m2
+data
+target
+*.log
+*.mv.db
+*.trace.db
+.env
+.env.*
+!.env.example
+README.md
+

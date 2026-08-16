@@ -62,6 +62,46 @@ mvn test
 
 当前测试覆盖应用启动、分析接口、历史记录、文件上传、日志脱敏和模型响应解析。
 
+## Docker 本地部署
+
+安装 Docker Desktop 并启动 Docker Engine。首次运行前创建本地环境文件：
+
+```powershell
+Copy-Item .env.example .env
+```
+
+只使用规则引擎时，可以保持 `AI_MODEL_ENABLED=false`。启用模型时，编辑本地 `.env`：
+
+```dotenv
+AI_MODEL_ENABLED=true
+AI_MODEL_API_KEY=your-api-key
+```
+
+`.env` 已被 Git 和 Docker 构建上下文忽略，不会进入仓库或镜像。
+
+构建并启动：
+
+```powershell
+docker compose up -d --build
+```
+
+查看状态和日志：
+
+```powershell
+docker compose ps
+docker compose logs -f aiops
+```
+
+停止容器：
+
+```powershell
+docker compose down
+```
+
+分析历史保存在 Docker Volume `ops-max_aiops-data` 中，执行普通的 `docker compose down` 不会删除数据。只有显式执行 `docker compose down --volumes` 才会删除该数据卷。
+
+应用默认地址为 http://127.0.0.1:8080/。如果本机 8080 端口被占用，可以修改 `.env` 中的 `APP_PORT`。
+
 ## API
 
 | 方法 | 路径 | 用途 |
