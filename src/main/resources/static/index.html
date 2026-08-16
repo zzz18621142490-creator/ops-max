@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
+    <title>OpsPilot AI 运维台</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/vendor/lucide.min.js" defer></script>
+    <script src="/app.js" defer></script>
+</head>
+<body>
+<div class="app-shell">
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div><strong>OpsPilot</strong><small>AI 运维台</small></div>
+        </div>
+        <nav class="primary-nav" aria-label="主导航">
+            <button class="nav-item active" type="button" data-view="analyzer"><i data-lucide="scan-search"></i><span>日志分析</span></button>
+            <button class="nav-item" type="button" data-view="history"><i data-lucide="history"></i><span>分析历史</span></button>
+            <button class="nav-item" type="button" data-view="audits"><i data-lucide="activity"></i><span>模型审计</span></button>
+        </nav>
+        <div class="sidebar-status">
+            <span class="status-dot" id="sidebar-status-dot"></span>
+            <div><strong id="sidebar-status-text">正在连接</strong><small>deepseek-v4-flash</small></div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <header class="topbar">
+            <div><p class="eyebrow">OPERATIONS / INCIDENT RESPONSE</p><h1 id="page-title">日志分析</h1></div>
+            <div class="topbar-actions">
+                <span class="model-chip"><i data-lucide="sparkles"></i>DeepSeek Flash</span>
+                <button class="icon-button" id="refresh-button" type="button" title="刷新当前视图" aria-label="刷新当前视图"><i data-lucide="refresh-cw"></i></button>
+            </div>
+        </header>
+
+        <section class="view active" id="view-analyzer">
+            <div class="analyzer-layout">
+                <section class="tool-panel input-panel">
+                    <div class="panel-heading">
+                        <div><h2>事件输入</h2><p>敏感信息将在分析前自动脱敏</p></div>
+                        <div class="segmented" aria-label="输入方式">
+                            <button class="active" type="button" data-input-mode="text">文本</button>
+                            <button type="button" data-input-mode="file">文件</button>
+                        </div>
+                    </div>
+                    <form id="analysis-form">
+                        <div class="field-grid">
+                            <label><span>服务名称</span><input id="service-name" name="serviceName" type="text" placeholder="payment-service" autocomplete="off"></label>
+                            <label><span>运行环境</span>
+                                <select id="environment" name="environment">
+                                    <option value="production">生产环境</option>
+                                    <option value="staging">预发布环境</option>
+                                    <option value="test">测试环境</option>
+                                    <option value="development">开发环境</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div id="text-input-area">
+                            <label class="log-label" for="log-text">日志内容</label>
+                            <textarea id="log-text" name="logText" spellcheck="false" placeholder="粘贴需要分析的日志..."></textarea>
+                            <div class="input-meta"><span id="character-count">0 字符</span><button class="text-button" id="clear-log" type="button">清空</button></div>
+                        </div>
+                        <div id="file-input-area" hidden>
+                            <label class="drop-zone" id="drop-zone" for="log-file">
+                                <input id="log-file" name="file" type="file" accept=".log,.txt,text/plain">
+                                <i data-lucide="file-up"></i><strong id="file-name">选择日志文件</strong><span>.log 或 .txt，最大 5 MB</span>
+                            </label>
+                        </div>
+                        <button class="primary-button" id="analyze-button" type="submit"><i data-lucide="sparkles"></i><span>开始分析</span></button>
+                    </form>
+                </section>
+
+                <section class="tool-panel result-panel" aria-live="polite">
+                    <div class="panel-heading result-heading">
+                        <div><h2>分析结果</h2><p id="result-meta">等待提交</p></div>
+                        <span class="severity-badge neutral" id="severity-badge">待分析</span>
+                    </div>
+                    <div class="empty-state" id="result-empty">
+                        <div class="signal-visual" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+                        <strong>暂无分析结果</strong>
+                    </div>
+                    <div class="loading-state" id="result-loading" hidden><span class="loader"></span><strong>正在分析日志</strong><p>规则引擎预判与模型诊断进行中</p></div>
+                    <div class="result-content" id="result-content" hidden>
+                        <div class="summary-block">
+                            <p id="result-summary"></p>
+                            <div class="metrics-row">
+                                <div><span>置信度</span><strong id="confidence-value">0%</strong></div>
+                                <div><span>影响范围</span><strong id="impact-scope">未知</strong></div>
+                                <div><span>错误 / 警告</span><strong id="signal-count">0 / 0</strong></div>
+                            </div>
+                        </div>
+                        <div class="result-sections">
+                            <section><h3><i data-lucide="circle-alert"></i>发现的问题</h3><ul id="issues-list"></ul></section>
+                            <section><h3><i data-lucide="git-branch"></i>可能根因</h3><ul id="causes-list"></ul></section>
+                            <section><h3><i data-lucide="wrench"></i>建议操作</h3><ol id="actions-list"></ol></section>
+                            <section><h3><i data-lucide="list-checks"></i>排查步骤</h3><ol id="steps-list"></ol></section>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </section>
+
+        <section class="view" id="view-history">
+            <div class="section-toolbar"><div><h2>分析历史</h2><p>按创建时间倒序排列</p></div><span class="count-label" id="history-count">0 条记录</span></div>
+            <div class="table-wrap">
+                <table><thead><tr><th>时间</th><th>服务</th><th>环境</th><th>级别</th><th>来源</th><th>摘要</th><th></th></tr></thead><tbody id="history-body"></tbody></table>
+                <div class="table-empty" id="history-empty" hidden>暂无分析记录</div>
+            </div>
+        </section>
+
+        <section class="view" id="view-audits">
+            <div class="section-toolbar"><div><h2>模型调用审计</h2><p>仅记录调用元数据，不保存原始日志</p></div><span class="count-label" id="audit-count">0 条记录</span></div>
+            <div class="table-wrap">
+                <table><thead><tr><th>时间</th><th>服务</th><th>环境</th><th>模型</th><th>状态</th><th>耗时</th><th>错误摘要</th></tr></thead><tbody id="audit-body"></tbody></table>
+                <div class="table-empty" id="audit-empty" hidden>暂无模型调用记录</div>
+            </div>
+        </section>
+    </main>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body>
+</html>

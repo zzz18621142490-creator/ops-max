@@ -1,0 +1,23 @@
+.m2/
+target/
+
+# Local runtime data
+data/
+*.log
+*.trace.db
+*.mv.db
+
+# IDE and OS files
+.idea/
+.vscode/
+*.iml
+.project
+.classpath
+.settings/
+.DS_Store
+Thumbs.db
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
